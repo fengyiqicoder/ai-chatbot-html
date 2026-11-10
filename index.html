@@ -59,7 +59,7 @@
     const reply = addMessage("bot", "…");
 
     const answer = await onetag.ask(text, null, {
-      system: "You are a friendly chatbot. Keep answers short, in plain text.",
+      system: "You are a friendly chatbot. Reply in two short sentences, no markdown.",
       history,
       stream: (piece) => {
         if (reply.textContent === "…") reply.textContent = "";
