@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Chatbot</title>
+
+<!-- 1. The AI: one script tag. Free key at https://onetagai.com -->
+<script src="https://onetagai.com/v1.js" data-key="ot_demo000000000000000000000"></script>
+
+<!-- 2. CSS -->
+<style>
+  body { margin: 0; background: #eef1f6; font: 17px/1.5 system-ui, sans-serif; }
+  .chat { max-width: 560px; margin: 40px auto; background: #fff; border-radius: 20px;
+          box-shadow: 0 10px 40px rgba(20, 30, 60, .12); overflow: hidden; }
+  header { padding: 18px 22px; background: #4f46e5; color: #fff; font-weight: 700; }
+  header small { display: block; font-weight: 400; opacity: .8; }
+  #messages { height: 420px; overflow-y: auto; padding: 20px; }
+  .msg { max-width: 80%; margin: 0 0 12px; padding: 10px 14px; border-radius: 16px; white-space: pre-wrap; }
+  .user { margin-left: auto; background: #4f46e5; color: #fff; border-bottom-right-radius: 4px; }
+  .bot { background: #f1f3f8; border-bottom-left-radius: 4px; }
+  form { display: flex; gap: 8px; padding: 14px; border-top: 1px solid #e6e9f0; }
+  input { flex: 1; padding: 12px 14px; font: inherit; border: 1px solid #d3d8e3; border-radius: 12px; }
+  button { padding: 0 20px; font: inherit; font-weight: 600; color: #fff; background: #4f46e5; border: 0; border-radius: 12px; }
+</style>
+</head>
+
+<body>
+<!-- 3. HTML -->
+<div class="chat">
+  <header>AI Chatbot <small>HTML, CSS and JavaScript. No backend.</small></header>
+  <div id="messages"><p class="msg bot">Hi! Ask me anything.</p></div>
+  <form id="form">
+    <input id="input" placeholder="Type a message…" autocomplete="off" required>
+    <button>Send</button>
+  </form>
+</div>
+
+<!-- 4. JavaScript -->
+<script>
+  const messages = document.getElementById("messages");
+  const input = document.getElementById("input");
+  const history = [];   // the conversation so far, so the bot remembers it
+
+  function addMessage(who, text) {
+    const p = document.createElement("p");
+    p.className = "msg " + who;
+    p.textContent = text;
+    messages.append(p);
+    messages.scrollTop = messages.scrollHeight;
+    return p;
+  }
+
+  document.getElementById("form").onsubmit = async (event) => {
+    event.preventDefault();
+    const text = input.value.trim();
+    input.value = "";
+    addMessage("user", text);
+    const reply = addMessage("bot", "…");
+
+    const answer = await onetag.ask(text, null, {
+      system: "You are a friendly chatbot. Keep answers short.",
+      history,
+      stream: (piece) => {
+        if (reply.textContent === "…") reply.textContent = "";
+        reply.textContent += piece;
+        messages.scrollTop = messages.scrollHeight;
+      },
+    });
+    history.push({ role: "user", content: text }, { role: "assistant", content: answer });
+  };
+</script>
+</body>
+</html>
